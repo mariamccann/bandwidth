@@ -7,8 +7,8 @@ export function Lobby({ onStart }: { onStart: (names: string[], winThreshold: nu
   const [threshold, setThreshold] = useState(DEFAULT_WIN_THRESHOLD);
   return (
     <div className="lobby">
-      <h1 className="lobby-title">Collective Stress</h1>
-      <p className="lobby-tag">Get ahead. Don't be the one who tips the track.</p>
+      <h1 className="lobby-title">Bandwidth</h1>
+      <p className="lobby-tag">You have none. They want more.</p>
       <label className="field">
         <span>Players (3–8)</span>
         <div className="count-row">

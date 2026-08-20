@@ -1,9 +1,11 @@
-# Collective Stress
+# Bandwidth
 
-*(working title — spec: "Untitled Corporate Survival Card Game", v1.1)*
+**You have none. They want more.**
+
+*(spec: "Untitled Corporate Survival Card Game", v1.1)*
 
 A digital multiplayer card game where players race to **15 Influence** while
-managing a single shared danger meter, **Collective Stress**. Almost every card
+managing a single shared danger meter, **Collective Stress**. Every "quick five minutes" someone takes from you loads the shared track. Almost every card
 that advances you loads the shared track; the cards that relieve the track
 advance nobody. Tip the track past 100 and you're out — and everyone else pays
 for it too.
@@ -20,7 +22,7 @@ for it too.
 
 | Path | What |
 | :- | :- |
-| `src/` | Pure, framework-free game engine (state machine, 13 effect types, full 110-card deck) |
+| `src/` | Pure, framework-free game engine (state machine, 13 effect types, full 113-card deck) |
 | `sim/` | Simulation agents + acceptance harness (`npm run sim`) |
 | `test/` | Vitest unit tests (`npm test`) |
 | `docs/DECISIONS.md` | Every spec ambiguity found during the build and how it was resolved |

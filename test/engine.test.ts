@@ -18,7 +18,7 @@ describe('setup (§3)', () => {
     }
     expect(s.collectiveStress).toBe(0);
     expect(s.winThreshold).toBe(15);
-    expect(s.deck.length).toBe(110 - 5 * 6);
+    expect(s.deck.length).toBe(113 - 5 * 6);
   });
 
   it('honours a configurable win threshold', () => {
@@ -238,7 +238,7 @@ describe('deck cycling (§4 step 8)', () => {
       }
       return all.length;
     };
-    expect(countAll()).toBe(110);
+    expect(countAll()).toBe(113);
   });
 });
 

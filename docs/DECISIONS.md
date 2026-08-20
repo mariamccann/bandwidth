@@ -50,3 +50,12 @@ review that preceded the build.
 16. **`isCurrentTurn`** → derived from `currentPlayerIndex` via
     `isCurrentTurn(state, id)` instead of stored per player, eliminating a
     second source of truth. All other §2 fields are as specified.
+
+17. **Post-spec card addition (designer request, 2026-08-20):** *Circling Back
+    on My Last Email* — Politics deck, 3 copies,
+    `influence_gain_with_stress_cost {influence 1, stress 7}`. Deck totals
+    become Politics 38 / **113 overall**; all build assertions updated. Balance
+    re-validated by a full simulation re-run (see simulation-report.md).
+18. **Game name:** *Bandwidth* — strapline "You have none. They want more."
+    (Was working-titled Collective Stress; the shared meter keeps that name
+    in-game.)

@@ -1,4 +1,5 @@
-// Complete card list — Spec §6. Deck build asserts totals per deck and 110 overall.
+// Complete card list — Spec §6 plus one post-spec addition (Circling Back on My
+// Last Email, by the designer's request). Deck build asserts totals: 113 overall.
 import type { Card, CardCondition, DeckType, EffectParams, EffectType } from './types.js';
 
 interface CardSpec {
@@ -24,7 +25,7 @@ export const CARD_SPECS: CardSpec[] = [
   { name: 'Early Finish Friday', copies: 3, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -12 }, requiresTarget: false, flavour: 'Someone said we could leave at 4. No one has left at 4.' },
   { name: 'PTO Approved', copies: 2, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -15 }, requiresTarget: false, flavour: 'Your out-of-office reply is doing more work than you did all year.' },
 
-  // ---- Politics Deck (35) ----
+  // ---- Politics Deck (38) ----
   { name: 'Regift the Hot Potato', copies: 3, deckType: 'Politics', effectType: 'give_random_card', effectParams: {}, requiresTarget: true, flavour: 'A gift! From me, to you, entirely unprompted.' },
   { name: 'Take This Offline', copies: 4, deckType: 'Politics', effectType: 'skip_next_turn', effectParams: {}, requiresTarget: true, flavour: "Let's not solve this in the group chat." },
   { name: 'Water Cooler Intelligence', copies: 3, deckType: 'Politics', effectType: 'peek_and_swap', effectParams: {}, requiresTarget: true, flavour: 'I heard from someone who heard from someone.' },
@@ -35,6 +36,7 @@ export const CARD_SPECS: CardSpec[] = [
   { name: 'Stealing Credit', copies: 4, deckType: 'Politics', effectType: 'steal_influence', effectParams: {}, requiresTarget: true, flavour: 'Great initiative. Glad I could lead it.' },
   { name: 'Thrown Under the Bus', copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 8 }, requiresTarget: false, flavour: 'It was a team effort. The team was you.' },
   { name: "CC'd for Visibility", copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 5 }, requiresTarget: false, flavour: 'Just keeping everyone in the loop. Especially you.' },
+  { name: 'Circling Back on My Last Email', copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 7 }, requiresTarget: false, flavour: 'Per my previous email. And the one before. And the one before that.' },
 
   // ---- Employee Policy Deck (10) ----
   { name: 'Team Chemistry Review', copies: 3, deckType: 'Employee', effectType: 'force_discard_chosen_by_attacker', effectParams: {}, requiresTarget: true, flavour: "We're not saying it's you. We're saying it's probably you." },
@@ -62,12 +64,12 @@ export const CARD_SPECS: CardSpec[] = [
 
 export const EXPECTED_DECK_COUNTS: Record<DeckType, number> = {
   Stress: 34,
-  Politics: 35,
+  Politics: 38,
   Employee: 10,
   Influence: 28,
   Support: 3,
 };
-export const EXPECTED_TOTAL = 110;
+export const EXPECTED_TOTAL = 113;
 
 /** Build the full 110-card deck (unshuffled). Asserts §6 counts. */
 export function buildDeck(): Card[] {

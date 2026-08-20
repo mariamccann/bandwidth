@@ -1,4 +1,4 @@
-/* Collective Stress — mobile-first hotseat UI */
+/* Bandwidth — mobile-first hotseat UI */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg: #14161f;
@@ -141,6 +141,10 @@ body {
 .modal-elim { text-align: center; align-items: center; }
 .elim-burst { font-size: 52px; }
 .modal-elim p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+.elim-quote {
+  font-style: italic; font-size: 17px !important; color: var(--text) !important;
+  border-left: 3px solid var(--accent); padding-left: 12px; text-align: left;
+}
 
 /* ---------- game over ---------- */
 .gameover { padding: 40px 20px; text-align: center; display: flex; flex-direction: column; gap: 16px; align-items: center; }

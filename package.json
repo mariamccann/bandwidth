@@ -1,8 +1,8 @@
 {
-  "name": "collective-stress",
+  "name": "bandwidth",
   "version": "0.1.0",
   "private": true,
-  "description": "Corporate survival card game \u2014 pure TypeScript engine, simulation harness, and (Phase 2) hotseat UI",
+  "description": "Bandwidth \u2014 you have none, they want more. Corporate survival card game: TypeScript engine, sim harness, hotseat UI.",
   "type": "module",
   "scripts": {
     "test": "vitest run",
