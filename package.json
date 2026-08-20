@@ -1,0 +1,18 @@
+{
+  "name": "collective-stress",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Corporate survival card game — pure TypeScript engine, simulation harness, and (Phase 2) hotseat UI",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "sim": "tsx sim/run.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "tsx": "^4.23.12",
+    "typescript": "5.6",
+    "vitest": "^2.1.9"
+  }
+}
