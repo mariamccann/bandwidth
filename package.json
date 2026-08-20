@@ -2,17 +2,26 @@
   "name": "collective-stress",
   "version": "0.1.0",
   "private": true,
-  "description": "Corporate survival card game — pure TypeScript engine, simulation harness, and (Phase 2) hotseat UI",
+  "description": "Corporate survival card game \u2014 pure TypeScript engine, simulation harness, and (Phase 2) hotseat UI",
   "type": "module",
   "scripts": {
     "test": "vitest run",
     "sim": "tsx sim/run.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tsx": "^4.23.12",
     "typescript": "5.6",
+    "vite": "^5.4.21",
     "vitest": "^2.1.9"
   }
 }
