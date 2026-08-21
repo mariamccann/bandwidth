@@ -156,3 +156,13 @@ body {
 .go-dead { opacity: 0.55; }
 .go-elims { width: 100%; text-align: left; background: var(--panel); border-radius: 10px; padding: 12px; }
 .go-elims h3 { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+
+/* ---------- online ---------- */
+.join-divider { text-align: center; color: var(--muted); font-size: 13px; padding: 6px 0; }
+.lobby-roster { display: flex; flex-direction: column; gap: 8px; }
+.net-error {
+  position: fixed; bottom: 16px; left: 16px; right: 16px; z-index: 40;
+  background: var(--danger); color: #fff; border-radius: 10px; padding: 12px 14px;
+  font-size: 14px; text-align: center; cursor: pointer;
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }

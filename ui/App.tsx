@@ -7,6 +7,7 @@ import {
 } from '../src/engine.js';
 import type { Card } from '../src/types.js';
 import { useGame } from './useGame.js';
+import { OnlineApp } from './online/OnlineApp.js';
 import { CardView } from './components/CardView.js';
 import { GameLog } from './components/GameLog.js';
 import { Lobby } from './components/Lobby.js';
@@ -24,6 +25,7 @@ import {
 const TOOLTIP_NOT_SOLE_LEADER = "You're already winning. Nobody quiet-words the front-runner.";
 
 export function App() {
+  const [mode, setMode] = useState<'menu' | 'hotseat' | 'online'>('menu');
   const game = useGame();
   const { state } = game;
 
@@ -42,6 +44,30 @@ export function App() {
     () => (state && state.gamePhase === 'game_over' ? getStandings(state) : null),
     [state, state?.gamePhase],
   );
+
+  if (mode === 'menu' && !state) {
+    // A live online session in this tab (refresh mid-game) jumps straight back in.
+    if (sessionStorage.getItem('bandwidth-session')) {
+      setMode('online');
+      return null;
+    }
+    return (
+      <div className="lobby">
+        <h1 className="lobby-title">Bandwidth</h1>
+        <p className="lobby-tag">You have none. They want more.</p>
+        <button className="btn btn-primary btn-start" onClick={() => setMode('online')}>
+          Play online — everyone on their own device
+        </button>
+        <button className="btn btn-primary btn-start" onClick={() => setMode('hotseat')}>
+          Pass and play — one shared phone
+        </button>
+      </div>
+    );
+  }
+
+  if (mode === 'online') {
+    return <OnlineApp onBack={() => setMode('menu')} />;
+  }
 
   if (!state) {
     return <Lobby onStart={(names, winThreshold) => {

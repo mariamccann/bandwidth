@@ -1,0 +1,9 @@
+# Render blueprint: deploy the game server with "New + > Blueprint" and this
+# repo — zero manual configuration.
+services:
+  - type: web
+    name: bandwidth-game
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start

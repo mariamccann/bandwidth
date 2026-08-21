@@ -16,7 +16,9 @@ for it too.
   headless simulation harness. **Acceptance gate passed** — see
   [docs/simulation-report.md](docs/simulation-report.md).
 - ⬜ **Phase 2 — Hotseat UI.** React + Vite, mobile-first pass-and-play.
-- ⬜ **Phase 3 — deferred.** Solo vs scripted AI; online multiplayer.
+- ✅ **Phase 3a — online multiplayer.** Server-authoritative WebSocket rooms;
+  everyone plays from their own device via a 4-letter room code.
+- ⬜ **Phase 3b — deferred.** Solo vs scripted AI opponents.
 
 ## Layout
 
@@ -24,6 +26,7 @@ for it too.
 | :- | :- |
 | `src/` | Pure, framework-free game engine (state machine, 13 effect types, full 113-card deck) |
 | `sim/` | Simulation agents + acceptance harness (`npm run sim`) |
+| `server/` | WebSocket game server: rooms, join codes, per-seat redacted state (`npm start`) |
 | `test/` | Vitest unit tests (`npm test`) |
 | `docs/DECISIONS.md` | Every spec ambiguity found during the build and how it was resolved |
 | `docs/simulation-report.md` | Phase 1 acceptance report (24,000 simulated games) |
@@ -34,7 +37,22 @@ for it too.
 npm test          # run the unit test suite
 npm run sim       # regenerate the simulation report (2,000 games/config)
 npm run typecheck # strict TypeScript check
+npm run dev       # UI dev server (Vite)
+npm start         # multiplayer game server (WebSocket, port 8787 / $PORT)
 ```
+
+## Online play
+
+The UI offers two modes: **pass-and-play** (one shared phone, no backend) and
+**online** (everyone on their own device). Online mode talks to the WebSocket
+server in `server/`: the host creates a room and shares its 4-letter code;
+the server runs the real engine and sends each player a redacted view (your
+own hand in full, everyone else's as counts — deck order never leaves the
+server). Refreshing rejoins your seat automatically.
+
+Deploy: the static site to Netlify (as before), the server to Render via
+`render.yaml` (Blueprint deploy). The client's production server URL is set
+in `ui/online/config.ts` (override with `VITE_WS_URL` at build time).
 
 ## Engine design
 
