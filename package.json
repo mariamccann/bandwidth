@@ -2,7 +2,7 @@
   "name": "bandwidth",
   "version": "0.1.0",
   "private": true,
-  "description": "Bandwidth — you have none, they want more. Corporate survival card game: TypeScript engine, sim harness, hotseat UI.",
+  "description": "Bandwidth \u2014 you have none, they want more. Corporate survival card game: TypeScript engine, sim harness, hotseat UI.",
   "type": "module",
   "scripts": {
     "test": "vitest run",
@@ -22,12 +22,15 @@
     "@vitejs/plugin-react": "^4.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tsx": "^4.23.12",
     "typescript": "5.6",
     "vite": "^6.4.3",
     "vitest": "^3.2.7"
   },
   "dependencies": {
+    "tsx": "^4.23.12",
     "ws": "^8.21.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
