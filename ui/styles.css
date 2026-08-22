@@ -166,3 +166,9 @@ body {
   font-size: 14px; text-align: center; cursor: pointer;
 }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---------- solo / bots ---------- */
+.total-hint { text-align: center; color: var(--muted); font-size: 13px; margin: -4px 0 2px; }
+.turn-bot { color: var(--accent); }
+.turn-bot::after { content: ' 🤖'; }
+.count-btn:disabled { opacity: 0.3; cursor: not-allowed; }

@@ -18,7 +18,9 @@ for it too.
 - ⬜ **Phase 2 — Hotseat UI.** React + Vite, mobile-first pass-and-play.
 - ✅ **Phase 3a — online multiplayer.** Server-authoritative WebSocket rooms;
   everyone plays from their own device via a 4-letter room code.
-- ⬜ **Phase 3b — deferred.** Solo vs scripted AI opponents.
+- ✅ **Phase 3b — solo / vs computer.** Play short-handed: computer players
+  (Easy = random, Normal = greedy) fill empty seats so 1 or 2 humans can play
+  the 3+ player game. No backend — bots run client-side on the shared engine.
 
 ## Layout
 

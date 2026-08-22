@@ -1,10 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   activePlayer,
   eligibleTargets,
   getPlayer,
   getStandings,
 } from '../src/engine.js';
+import type { BotDifficulty } from './useGame.js';
 import type { Card } from '../src/types.js';
 import { useGame } from './useGame.js';
 import { OnlineApp } from './online/OnlineApp.js';
@@ -13,6 +14,7 @@ import { GameLog } from './components/GameLog.js';
 import { Lobby } from './components/Lobby.js';
 import { PassInterstitial } from './components/PassInterstitial.js';
 import { Scoreboard } from './components/Scoreboard.js';
+import { SoloSetup, type SoloConfig } from './components/SoloSetup.js';
 import { StressTrack } from './components/StressTrack.js';
 import {
   EliminationModal,
@@ -25,9 +27,9 @@ import {
 const TOOLTIP_NOT_SOLE_LEADER = "You're already winning. Nobody quiet-words the front-runner.";
 
 export function App() {
-  const [mode, setMode] = useState<'menu' | 'hotseat' | 'online'>('menu');
+  const [mode, setMode] = useState<'menu' | 'hotseat' | 'solo' | 'online'>('menu');
   const game = useGame();
-  const { state } = game;
+  const { state, isBot } = game;
 
   // Hotseat privacy: hide hands until the deciding player confirms the handover.
   const [confirmedId, setConfirmedId] = useState<string | null>(null);
@@ -35,7 +37,12 @@ export function App() {
   const [staged, setStaged] = useState<Card | null>(null);
   // peek_swap staging: card taken from the revealed hand, waiting for the give-back pick.
   const [swapTake, setSwapTake] = useState<string | null>(null);
-  const lastDecider = useRef<string | null>(null);
+
+  const resetLocalUi = () => {
+    setConfirmedId(null);
+    setStaged(null);
+    setSwapTake(null);
+  };
 
   const pending = state?.pending ?? null;
   const deciderId = pending?.playerId ?? null;
@@ -58,6 +65,9 @@ export function App() {
         <button className="btn btn-primary btn-start" onClick={() => setMode('online')}>
           Play online — everyone on their own device
         </button>
+        <button className="btn btn-primary btn-start" onClick={() => setMode('solo')}>
+          Solo / vs computer — fill empty seats with bots
+        </button>
         <button className="btn btn-primary btn-start" onClick={() => setMode('hotseat')}>
           Pass and play — one shared phone
         </button>
@@ -69,26 +79,47 @@ export function App() {
     return <OnlineApp onBack={() => setMode('menu')} />;
   }
 
-  if (!state) {
+  if (mode === 'solo' && !state) {
+    return (
+      <SoloSetup
+        onBack={() => setMode('menu')}
+        onStart={(cfg: SoloConfig) => {
+          resetLocalUi();
+          const bots: Record<string, BotDifficulty> = {};
+          for (const idx of cfg.botIndices) bots[`p${idx}`] = cfg.difficulty;
+          game.start({ playerNames: cfg.playerNames, winThreshold: cfg.winThreshold, bots });
+        }}
+      />
+    );
+  }
+
+  if (mode === 'hotseat' && !state) {
     return <Lobby onStart={(names, winThreshold) => {
-      setConfirmedId(null);
-      setStaged(null);
-      setSwapTake(null);
-      lastDecider.current = null;
+      resetLocalUi();
       game.start({ playerNames: names, winThreshold });
     }} />;
   }
 
+  if (!state) return null;
+
   if (state.gamePhase === 'game_over' && standings) {
-    return <GameOverScreen state={state} standings={standings} onAgain={game.reset} />;
+    return <GameOverScreen state={state} standings={standings} onAgain={() => { resetLocalUi(); game.reset(); }} />;
   }
 
   const active = activePlayer(state);
   const decider = deciderId ? getPlayer(state, deciderId) : active;
+  const deciderIsBot = deciderId !== null && isBot(deciderId);
+
+  const humanIds = state.players.filter((p) => !isBot(p.id)).map((p) => p.id);
+  const soloSingle = humanIds.length === 1;
+  const viewerId = soloSingle ? humanIds[0]! : null;
+
+  // Pass-the-phone privacy only applies BETWEEN HUMANS. A lone human never
+  // hands off; bots act automatically and are never gated.
+  const needsHandover =
+    !soloSingle && deciderId !== null && !deciderIsBot && confirmedId !== deciderId;
 
   // ---- overlay precedence: elimination moment > reveal > handover > sub-prompts
-  const needsHandover = deciderId !== null && confirmedId !== deciderId;
-
   const overlay = (() => {
     if (game.moment) {
       return <EliminationModal name={game.moment.eliminatedName} onClose={game.clearMoment} />;
@@ -103,6 +134,9 @@ export function App() {
           : undefined;
       return <PassInterstitial name={decider.name} note={note} onReady={() => setConfirmedId(deciderId)} />;
     }
+    // Sub-prompts belong to whoever owns the pending decision — never render one
+    // for a computer player; the bot driver answers those itself.
+    if (pending && isBot(pending.playerId)) return null;
     if (pending?.kind === 'peek_swap') {
       const target = getPlayer(state, pending.targetId);
       if (swapTake === null) {
@@ -168,37 +202,50 @@ export function App() {
     return null;
   })();
 
-  const showHand = pending?.kind === 'play_card' && !needsHandover;
-  const mustDiscard = pending?.kind === 'play_card' && pending.mustDiscard;
+  // Which hand (if any) to show face-up, and whether it is interactive now.
+  // Solo (1 human): always show the viewer's hand. Multi-human hotseat: show the
+  // human decider's hand once they've taken the phone. Never show a bot's hand.
+  const handOwnerId = soloSingle
+    ? viewerId
+    : deciderIsBot || needsHandover || pending?.kind !== 'play_card'
+      ? null
+      : deciderId;
+  const canPlay =
+    pending?.kind === 'play_card' && deciderId === handOwnerId && !deciderIsBot && !needsHandover;
+  const mustDiscard = canPlay && pending.mustDiscard;
+  const handOwner = handOwnerId ? getPlayer(state, handOwnerId) : null;
+
+  const banner = deciderIsBot
+    ? `${decider.name} is deciding…`
+    : mustDiscard
+      ? `${decider.name}: no playable cards — discard one`
+      : soloSingle && deciderId === viewerId
+        ? 'Your turn — play a card'
+        : `${decider.name}'s turn — play a card`;
 
   return (
     <div className="game">
       <StressTrack value={state.collectiveStress} />
-      <Scoreboard state={state} activeId={active.id} />
-      <div className="turn-banner">
-        {mustDiscard
-          ? `${decider.name}: no playable cards — discard one`
-          : `${decider.name}'s turn — play a card`}
-      </div>
-      {showHand && (
+      <Scoreboard state={state} activeId={active.id} botIds={humanIds.length < state.players.length ? new Set(state.players.filter((p) => isBot(p.id)).map((p) => p.id)) : undefined} />
+      <div className={`turn-banner${deciderIsBot ? ' turn-bot' : ''}`}>{banner}</div>
+      {handOwner && (
         <div className="hand">
-          {decider.hand.map((c) => {
-            const playable = pending.playableCardIds.includes(c.id);
-            const disabled = !mustDiscard && !playable;
+          {handOwner.hand.map((c) => {
+            const playable = canPlay && (pending.mustDiscard || pending.playableCardIds.includes(c.id));
+            const disabled = !canPlay || (!mustDiscard && !playable);
             return (
               <CardView
                 key={c.id}
                 card={c}
                 disabled={disabled}
-                disabledReason={c.condition === 'not_sole_leader' ? TOOLTIP_NOT_SOLE_LEADER : undefined}
+                disabledReason={
+                  canPlay && c.condition === 'not_sole_leader' ? TOOLTIP_NOT_SOLE_LEADER : undefined
+                }
                 onClick={() => {
-                  if (mustDiscard) {
-                    game.decide({ type: 'discard_card', cardId: c.id });
-                  } else if (c.requiresTarget) {
-                    setStaged(c);
-                  } else {
-                    game.decide({ type: 'play_card', cardId: c.id });
-                  }
+                  if (!canPlay) return;
+                  if (mustDiscard) game.decide({ type: 'discard_card', cardId: c.id });
+                  else if (c.requiresTarget) setStaged(c);
+                  else game.decide({ type: 'play_card', cardId: c.id });
                 }}
               />
             );

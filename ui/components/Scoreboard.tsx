@@ -1,7 +1,15 @@
 import React from 'react';
 import type { GameState } from '../../src/types.js';
 
-export function Scoreboard({ state, activeId }: { state: GameState; activeId: string | null }) {
+export function Scoreboard({
+  state,
+  activeId,
+  botIds,
+}: {
+  state: GameState;
+  activeId: string | null;
+  botIds?: Set<string>;
+}) {
   return (
     <div className="scoreboard">
       {state.turnOrder.map((id) => {
@@ -13,6 +21,7 @@ export function Scoreboard({ state, activeId }: { state: GameState; activeId: st
           >
             <span className="score-name">
               {p.name}
+              {botIds?.has(p.id) && ' 🤖'}
               {p.isProtected && ' 🛡'}
               {p.skipNextTurn && ' ⏭'}
               {p.forcedPlayHighestStress && ' 📋'}
