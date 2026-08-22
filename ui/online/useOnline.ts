@@ -2,7 +2,7 @@
 // sessionStorage so a refresh rejoins the same seat).
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Decision } from '../../src/types.js';
-import type { ClientMessage, GameView, LobbyPlayer, ServerMessage } from '../../server/protocol.js';
+import type { BotDifficulty, ClientMessage, GameView, LobbyPlayer, ServerMessage } from '../../server/protocol.js';
 import { WS_URL } from './config.js';
 
 const SESSION_KEY = 'bandwidth-session';
@@ -125,6 +125,8 @@ export function useOnline() {
     create: (name: string) => connect({ type: 'create', name }),
     join: (code: string, name: string) => connect({ type: 'join', code: code.toUpperCase().trim(), name }),
     start: (winThreshold: number) => sendMsg({ type: 'start', winThreshold }),
+    addBot: (difficulty: BotDifficulty) => sendMsg({ type: 'add_bot', difficulty }),
+    removeBot: (seatId: string) => sendMsg({ type: 'remove_bot', seatId }),
     decide: (decision: Decision) => sendMsg({ type: 'decision', decision }),
     restart: () => sendMsg({ type: 'restart' }),
     clearMoment: () => setState((s) => ({ ...s, moment: null })),

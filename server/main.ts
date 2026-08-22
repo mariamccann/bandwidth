@@ -47,6 +47,56 @@ function broadcastState(room: Room): void {
   }
 }
 
+/** Fan out the reveal (to its one viewer) and elimination moment (to all) of an applied move. */
+function dispatchEvent(room: Room, event: import('./room.js').RoomEvent): void {
+  if (event.reveal) {
+    for (const c of conns) {
+      const s = seatOf(c);
+      if (c.room === room && s?.seatId === event.reveal.toSeatId) {
+        send(c.ws, { type: 'reveal', targetName: event.reveal.targetName, cards: event.reveal.cards });
+      }
+    }
+  }
+  if (event.moment) {
+    for (const c of conns) {
+      if (c.room === room && seatOf(c)) {
+        send(c.ws, { type: 'moment', eliminatedName: event.moment.eliminatedName });
+      }
+    }
+  }
+}
+
+const BOT_DELAY_MS = 900;
+const botTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+/**
+ * Server-side computer players. Whenever the pending decision belongs to a bot
+ * seat, apply its move after a short readable delay and chain to the next.
+ * One timer per room; re-validated on fire so a reset/restart can't act stale.
+ */
+function scheduleBots(room: Room): void {
+  if (botTimers.has(room.code)) return;
+  if (!room.pendingBotSeat()) return;
+  const stateAtSchedule = room.state;
+  const timer = setTimeout(() => {
+    botTimers.delete(room.code);
+    if (room.state !== stateAtSchedule || !room.pendingBotSeat()) {
+      scheduleBots(room);
+      return;
+    }
+    try {
+      const event = room.applyBotTurn();
+      room.touch();
+      dispatchEvent(room, event);
+    } catch (e) {
+      console.error('bot turn failed', e);
+    }
+    broadcastState(room);
+    scheduleBots(room);
+  }, BOT_DELAY_MS);
+  botTimers.set(room.code, timer);
+}
+
 function handle(conn: Conn, msg: ClientMessage): void {
   switch (msg.type) {
     case 'create': {
@@ -86,6 +136,24 @@ function handle(conn: Conn, msg: ClientMessage): void {
       }
       return;
     }
+    case 'add_bot': {
+      const room = conn.room;
+      if (!room || !conn.token) throw new RoomError('Not in a room');
+      if (!room.isHost(conn.token)) throw new RoomError('Only the host can add computer players');
+      room.addBot(msg.difficulty === 'easy' ? 'easy' : 'normal');
+      room.touch();
+      broadcastLobby(room);
+      return;
+    }
+    case 'remove_bot': {
+      const room = conn.room;
+      if (!room || !conn.token) throw new RoomError('Not in a room');
+      if (!room.isHost(conn.token)) throw new RoomError('Only the host can remove computer players');
+      room.removeBot(msg.seatId);
+      room.touch();
+      broadcastLobby(room);
+      return;
+    }
     case 'start': {
       const room = conn.room;
       if (!room || !conn.token) throw new RoomError('Not in a room');
@@ -94,6 +162,7 @@ function handle(conn: Conn, msg: ClientMessage): void {
       room.start(t);
       room.touch();
       broadcastState(room);
+      scheduleBots(room); // in case the first player to act is a bot
       return;
     }
     case 'decision': {
@@ -102,22 +171,9 @@ function handle(conn: Conn, msg: ClientMessage): void {
       if (!room || !seat) throw new RoomError('Not in a room');
       const event = room.applyDecision(seat.seatId, msg.decision);
       room.touch();
-      if (event.reveal) {
-        for (const c of conns) {
-          const s = seatOf(c);
-          if (c.room === room && s?.seatId === event.reveal.toSeatId) {
-            send(c.ws, { type: 'reveal', targetName: event.reveal.targetName, cards: event.reveal.cards });
-          }
-        }
-      }
-      if (event.moment) {
-        for (const c of conns) {
-          if (c.room === room && seatOf(c)) {
-            send(c.ws, { type: 'moment', eliminatedName: event.moment.eliminatedName });
-          }
-        }
-      }
+      dispatchEvent(room, event);
       broadcastState(room);
+      scheduleBots(room); // next player to act may be a bot
       return;
     }
     case 'restart': {
@@ -127,6 +183,8 @@ function handle(conn: Conn, msg: ClientMessage): void {
       if (room.state && room.state.gamePhase !== 'game_over') {
         throw new RoomError('Game still in progress');
       }
+      const pendingTimer = botTimers.get(room.code);
+      if (pendingTimer) { clearTimeout(pendingTimer); botTimers.delete(room.code); }
       room.restart();
       room.touch();
       broadcastLobby(room);

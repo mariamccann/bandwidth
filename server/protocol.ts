@@ -3,11 +3,14 @@
 // in full, everyone else's as counts, deck order never leaves the server.
 import type { Card, Decision, GamePhase, StandingsEntry, WinReason } from '../src/types.js';
 
+export type BotDifficulty = 'easy' | 'normal';
+
 export interface LobbyPlayer {
   seatId: string;
   name: string;
   connected: boolean;
   isHost: boolean;
+  isBot: boolean;
 }
 
 export interface ViewPlayer {
@@ -20,6 +23,7 @@ export interface ViewPlayer {
   skipNextTurn: boolean;
   forcedPlayHighestStress: boolean;
   connected: boolean;
+  isBot: boolean;
 }
 
 /** What the pending decision looks like from one seat's perspective. */
@@ -50,6 +54,8 @@ export type ClientMessage =
   | { type: 'create'; name: string }
   | { type: 'join'; code: string; name: string }
   | { type: 'rejoin'; code: string; token: string }
+  | { type: 'add_bot'; difficulty: BotDifficulty }
+  | { type: 'remove_bot'; seatId: string }
   | { type: 'start'; winThreshold: number }
   | { type: 'decision'; decision: Decision }
   | { type: 'restart' };

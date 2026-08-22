@@ -172,3 +172,13 @@ body {
 .turn-bot { color: var(--accent); }
 .turn-bot::after { content: ' 🤖'; }
 .count-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ---------- online bots ---------- */
+.lobby-roster .score-chip { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.chip-remove {
+  border: 0; background: transparent; color: var(--danger); font-size: 20px;
+  line-height: 1; cursor: pointer; padding: 0 4px;
+}
+.bot-add-row { display: flex; gap: 8px; align-items: stretch; }
+.bot-add-row .bot-skill { flex: 1; }
+.bot-add-row .btn { white-space: nowrap; }

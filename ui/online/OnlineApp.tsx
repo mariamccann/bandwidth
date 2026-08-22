@@ -3,6 +3,7 @@
 // components wherever the shapes allow.
 import React, { useState } from 'react';
 import type { Card } from '../../src/types.js';
+import type { BotDifficulty } from '../../server/protocol.js';
 import { CardView } from '../components/CardView.js';
 import { GameLog } from '../components/GameLog.js';
 import { StressTrack } from '../components/StressTrack.js';
@@ -142,6 +143,7 @@ export function OnlineApp({ onBack }: { onBack: () => void }) {
           >
             <span className="score-name">
               {p.name}{p.id === view.you ? ' (you)' : ''}
+              {p.isBot && ' 🤖'}
               {p.isProtected && ' 🛡'}
               {p.skipNextTurn && ' ⏭'}
               {p.forcedPlayHighestStress && ' 📋'}
@@ -242,7 +244,9 @@ function OnlineHome({
 function RoomLobby({ online, onBack }: { online: ReturnType<typeof useOnline>; onBack: () => void }) {
   const { state } = online;
   const [threshold, setThreshold] = useState(15);
+  const [difficulty, setDifficulty] = useState<BotDifficulty>('normal');
   const enough = state.lobby.length >= 3;
+  const full = state.lobby.length >= 8;
   return (
     <div className="lobby">
       <h1 className="lobby-title">Room {state.code}</h1>
@@ -251,16 +255,28 @@ function RoomLobby({ online, onBack }: { online: ReturnType<typeof useOnline>; o
         {state.lobby.map((p) => (
           <div key={p.seatId} className="score-chip">
             <span className="score-name">
-              {p.name}{p.isHost ? ' 👑' : ''}{!p.connected ? ' 🔌' : ''}
+              {p.name}{p.isHost ? ' 👑' : ''}{p.isBot ? ' 🤖' : ''}{!p.isBot && !p.connected ? ' 🔌' : ''}
             </span>
+            {state.youAreHost && p.isBot && (
+              <button className="chip-remove" title="Remove" onClick={() => online.removeBot(p.seatId)}>×</button>
+            )}
           </div>
         ))}
         {state.lobby.length < 3 && (
-          <div className="score-goal">Waiting for players… {state.lobby.length}/3 minimum (8 max)</div>
+          <div className="score-goal">Add computer players or wait for people… {state.lobby.length}/3 minimum (8 max)</div>
         )}
       </div>
       {state.youAreHost ? (
         <>
+          <div className="bot-add-row">
+            <div className="count-row bot-skill">
+              <button className={`count-btn${difficulty === 'easy' ? ' count-on' : ''}`} onClick={() => setDifficulty('easy')}>Easy</button>
+              <button className={`count-btn${difficulty === 'normal' ? ' count-on' : ''}`} onClick={() => setDifficulty('normal')}>Normal</button>
+            </div>
+            <button className="btn" disabled={full} onClick={() => online.addBot(difficulty)}>
+              + Add computer
+            </button>
+          </div>
           <label className="field">
             <span>Win threshold (Influence)</span>
             <input
@@ -269,7 +285,7 @@ function RoomLobby({ online, onBack }: { online: ReturnType<typeof useOnline>; o
             />
           </label>
           <button className="btn btn-primary btn-start" disabled={!enough} onClick={() => online.start(threshold)}>
-            {enough ? `Start with ${state.lobby.length} players` : 'Need at least 3 players'}
+            {enough ? `Start with ${state.lobby.length} players` : 'Need at least 3 (people or computers)'}
           </button>
         </>
       ) : (
