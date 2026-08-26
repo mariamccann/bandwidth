@@ -59,3 +59,12 @@ review that preceded the build.
 18. **Game name:** *Bandwidth* — strapline "You have none. They want more."
     (Was working-titled Collective Stress; the shared meter keeps that name
     in-game.)
+19. **Card swaps removed after playtesting (2026-08-25):** the swap interaction
+    obscured card effects and slowed turns. *Water Cooler Intelligence* now
+    steals 1 Influence; *Role Audit* lets its player choose an opponent's
+    discard. The legacy engine effect remains temporarily for saved-game
+    compatibility, but no card in a newly built deck invokes it.
+20. **Regift the Hot Potato clarified after playtesting:** it now passes a
+    random card from the active player's hand to the target, matching both its
+    name and its intended political advantage. The earlier implementation drew
+    a bonus card from the deck for the opponent, which usually helped them.

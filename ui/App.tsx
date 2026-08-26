@@ -11,6 +11,7 @@ import { useGame } from './useGame.js';
 import { OnlineApp } from './online/OnlineApp.js';
 import { CardView } from './components/CardView.js';
 import { GameLog } from './components/GameLog.js';
+import { Home } from './components/Home.js';
 import { Lobby } from './components/Lobby.js';
 import { PassInterstitial } from './components/PassInterstitial.js';
 import { Scoreboard } from './components/Scoreboard.js';
@@ -18,6 +19,7 @@ import { SoloSetup, type SoloConfig } from './components/SoloSetup.js';
 import { StressTrack } from './components/StressTrack.js';
 import {
   EliminationModal,
+  CardDetailModal,
   GameOverScreen,
   HandPicker,
   RevealModal,
@@ -27,7 +29,9 @@ import {
 const TOOLTIP_NOT_SOLE_LEADER = "You're already winning. Nobody quiet-words the front-runner.";
 
 export function App() {
-  const [mode, setMode] = useState<'menu' | 'hotseat' | 'solo' | 'online'>('menu');
+  const [mode, setMode] = useState<'menu' | 'hotseat' | 'solo' | 'online'>(() =>
+    sessionStorage.getItem('bandwidth-session') ? 'online' : 'menu',
+  );
   const game = useGame();
   const { state, isBot } = game;
 
@@ -37,11 +41,13 @@ export function App() {
   const [staged, setStaged] = useState<Card | null>(null);
   // peek_swap staging: card taken from the revealed hand, waiting for the give-back pick.
   const [swapTake, setSwapTake] = useState<string | null>(null);
+  const [inspected, setInspected] = useState<Card | null>(null);
 
   const resetLocalUi = () => {
     setConfirmedId(null);
     setStaged(null);
     setSwapTake(null);
+    setInspected(null);
   };
 
   const pending = state?.pending ?? null;
@@ -53,25 +59,12 @@ export function App() {
   );
 
   if (mode === 'menu' && !state) {
-    // A live online session in this tab (refresh mid-game) jumps straight back in.
-    if (sessionStorage.getItem('bandwidth-session')) {
-      setMode('online');
-      return null;
-    }
     return (
-      <div className="lobby">
-        <h1 className="lobby-title">Bandwidth</h1>
-        <p className="lobby-tag">You have none. They want more.</p>
-        <button className="btn btn-primary btn-start" onClick={() => setMode('online')}>
-          Play online — everyone on their own device
-        </button>
-        <button className="btn btn-primary btn-start" onClick={() => setMode('solo')}>
-          Solo / vs computer — fill empty seats with bots
-        </button>
-        <button className="btn btn-primary btn-start" onClick={() => setMode('hotseat')}>
-          Pass and play — one shared phone
-        </button>
-      </div>
+      <Home
+        onOnline={() => setMode('online')}
+        onSolo={() => setMode('solo')}
+        onHotseat={() => setMode('hotseat')}
+      />
     );
   }
 
@@ -127,6 +120,9 @@ export function App() {
     if (game.reveal) {
       return <RevealModal targetName={game.reveal.targetName} cards={game.reveal.cards} onClose={game.clearReveal} />;
     }
+    if (inspected) {
+      return <CardDetailModal card={inspected} onClose={() => setInspected(null)} />;
+    }
     if (needsHandover) {
       const note =
         pending?.kind === 'aid_discard'
@@ -143,9 +139,10 @@ export function App() {
         return (
           <HandPicker
             title={`${target.name}'s hand — take one card`}
-            subtitle="Pick the card you want. Then you'll choose one of yours to hand over."
+            subtitle="Choose a card to inspect it. Nothing changes hands until you confirm."
             cards={target.hand.filter((c) => pending.revealedCardIds.includes(c.id))}
             onPick={(id) => setSwapTake(id)}
+            confirmLabel="Take this card"
           />
         );
       }
@@ -153,11 +150,13 @@ export function App() {
       return (
         <HandPicker
           title="Give one of yours back"
+          subtitle="Choose a card to inspect it, then confirm the exchange."
           cards={me.hand}
           onPick={(giveId) => {
             game.decide({ type: 'peek_swap', takeCardId: swapTake, giveCardId: giveId });
             setSwapTake(null);
           }}
+          confirmLabel="Give this card back"
         />
       );
     }
@@ -247,6 +246,7 @@ export function App() {
                   else if (c.requiresTarget) setStaged(c);
                   else game.decide({ type: 'play_card', cardId: c.id });
                 }}
+                onInspect={() => setInspected(c)}
               />
             );
           })}

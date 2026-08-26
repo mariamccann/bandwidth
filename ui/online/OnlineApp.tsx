@@ -7,7 +7,7 @@ import type { BotDifficulty } from '../../server/protocol.js';
 import { CardView } from '../components/CardView.js';
 import { GameLog } from '../components/GameLog.js';
 import { StressTrack } from '../components/StressTrack.js';
-import { EliminationModal, HandPicker, RevealModal, TargetPrompt } from '../components/Modals.js';
+import { CardDetailModal, EliminationModal, HandPicker, RevealModal, TargetPrompt } from '../components/Modals.js';
 import { useOnline } from './useOnline.js';
 
 const TOOLTIP_NOT_SOLE_LEADER = "You're already winning. Nobody quiet-words the front-runner.";
@@ -17,6 +17,7 @@ export function OnlineApp({ onBack }: { onBack: () => void }) {
   const { state } = online;
   const [staged, setStaged] = useState<Card | null>(null);
   const [swapTake, setSwapTake] = useState<string | null>(null);
+  const [inspected, setInspected] = useState<Card | null>(null);
 
   if (state.status === 'idle' || state.status === 'connecting') {
     return <OnlineHome online={online} onBack={onBack} connecting={state.status === 'connecting'} />;
@@ -70,25 +71,29 @@ export function OnlineApp({ onBack }: { onBack: () => void }) {
     if (state.reveal) {
       return <RevealModal targetName={state.reveal.targetName} cards={state.reveal.cards} onClose={online.clearReveal} />;
     }
+    if (inspected) return <CardDetailModal card={inspected} onClose={() => setInspected(null)} />;
     if (pending?.kind === 'peek_swap') {
       if (swapTake === null) {
         return (
           <HandPicker
             title={`${pending.targetName}'s hand — take one card`}
-            subtitle="Pick the card you want. Then you'll choose one of yours to hand over."
+            subtitle="Choose a card to inspect it. Nothing changes hands until you confirm."
             cards={pending.revealedCards}
             onPick={(id) => setSwapTake(id)}
+            confirmLabel="Take this card"
           />
         );
       }
       return (
         <HandPicker
           title="Give one of yours back"
+          subtitle="Choose a card to inspect it, then confirm the exchange."
           cards={view.hand}
           onPick={(giveId) => {
             online.decide({ type: 'peek_swap', takeCardId: swapTake, giveCardId: giveId });
             setSwapTake(null);
           }}
+          confirmLabel="Give this card back"
         />
       );
     }
@@ -143,17 +148,17 @@ export function OnlineApp({ onBack }: { onBack: () => void }) {
           >
             <span className="score-name">
               {p.name}{p.id === view.you ? ' (you)' : ''}
-              {p.isBot && ' 🤖'}
-              {p.isProtected && ' 🛡'}
-              {p.skipNextTurn && ' ⏭'}
-              {p.forcedPlayHighestStress && ' 📋'}
-              {!p.connected && ' 🔌'}
+              {p.isBot && <span className="status-icon" role="img" aria-label="Computer player"> 🤖</span>}
+              {p.isProtected && <span className="status-icon" role="img" aria-label="Protected"> 🛡</span>}
+              {p.skipNextTurn && <span className="status-icon" role="img" aria-label="Will skip next turn"> ⏭</span>}
+              {p.forcedPlayHighestStress && <span className="status-icon" role="img" aria-label="Forced play pending"> 📋</span>}
+              {!p.connected && <span className="status-icon" role="img" aria-label="Disconnected"> 🔌</span>}
             </span>
             <span className="score-inf">{p.influence}⭐</span>
             <span className="score-hand">{p.isAlive ? `${p.handCount} 🂠` : 'OUT'}</span>
           </div>
         ))}
-        <div className="score-goal">First to {view.winThreshold}⭐ wins · room {state.code}</div>
+        <div className="score-goal">First to {view.winThreshold} Influence wins · room {state.code}</div>
       </div>
       <div className="turn-banner">
         {yourTurn
@@ -179,6 +184,7 @@ export function OnlineApp({ onBack }: { onBack: () => void }) {
                 else if (c.requiresTarget) setStaged(c);
                 else online.decide({ type: 'play_card', cardId: c.id });
               }}
+              onInspect={() => setInspected(c)}
             />
           );
         })}

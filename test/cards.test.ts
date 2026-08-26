@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildDeck,
   CARD_SPECS,
+  cardRuleText,
   EXPECTED_DECK_COUNTS,
   EXPECTED_TOTAL,
   influenceYield,
@@ -12,7 +13,7 @@ import {
 import { card } from './helpers.js';
 
 describe('deck build (§6)', () => {
-  it('builds exactly 110 cards with correct per-deck counts', () => {
+  it('builds exactly 113 cards with correct per-deck counts', () => {
     const deck = buildDeck();
     expect(deck.length).toBe(EXPECTED_TOTAL);
     const counts: Record<string, number> = {};
@@ -40,6 +41,18 @@ describe('deck build (§6)', () => {
     expect(conditioned.map((s) => s.name).sort()).toEqual(
       ['Quiet Word With the VP', 'Took the Meeting Notes'].sort(),
     );
+  });
+
+  it('keeps card swapping out of the live deck', () => {
+    expect(CARD_SPECS.some((card) => card.effectType === 'peek_and_swap')).toBe(false);
+    expect(CARD_SPECS.find((card) => card.name === 'Water Cooler Intelligence')?.effectType).toBe('steal_influence');
+    expect(CARD_SPECS.find((card) => card.name === 'Role Audit')?.effectType).toBe('force_discard_chosen_by_attacker');
+  });
+
+  it('provides explicit player-facing rules for non-numeric Politics effects', () => {
+    const cardSpec = CARD_SPECS.find((candidate) => candidate.name === 'Take This Offline')!;
+    const rule = cardRuleText({ id: 'test', ...cardSpec, effectParams: { ...cardSpec.effectParams } });
+    expect(rule).toBe('Choose an opponent. They skip their next turn.');
   });
 });
 

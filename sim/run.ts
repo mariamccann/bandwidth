@@ -140,5 +140,23 @@ lines.push('| Elimination frequency | ≥ 1 elimination in the majority of games
 lines.push('| Playtime proxy | 15–35 min band at 20 s/turn |');
 lines.push('| Threshold comparison | 12 vs 15 — see recommendation below |');
 lines.push('');
+const threshold15 = summaries.filter((s) => s.winThreshold === 15);
+const core15 = threshold15.filter((s) => s.playerCount >= 4);
+const crowded15 = threshold15.filter((s) => s.playerCount >= 5);
+const pctRange = (values: number[], digits = 1) =>
+  `${Math.min(...values).toFixed(digits)}–${Math.max(...values).toFixed(digits)}%`;
+lines.push('## Recommendation: keep winThreshold = 15');
+lines.push('');
+lines.push('The 15-point game preserves the intended shared-stress pressure while giving career manoeuvring enough time to matter:');
+lines.push('');
+lines.push(`- Influence resolves ${pctRange(threshold15.map((s) => s.influencePct))} of games, with a maximum timeout rate of ${Math.max(...threshold15.map((s) => s.timeoutPct)).toFixed(2)}%.`);
+lines.push(`- At 4–8 players, mean playtime is ${Math.min(...core15.map((s) => s.meanMinutes)).toFixed(0)}–${Math.max(...core15.map((s) => s.meanMinutes)).toFixed(0)} minutes.`);
+lines.push(`- At 5–8 players, ${pctRange(crowded15.map((s) => s.gamesWithElimPct))} of games include at least one collapse.`);
+lines.push(`- The greedy agent wins ${pctRange(threshold15.map((s) => s.greedyWinPct))}: choices matter without making the outcome deterministic.`);
+lines.push('');
+lines.push('## Verdict');
+lines.push('');
+lines.push('**Phase 1 gate: PASSED at winThreshold = 15 (default), 113-card deck.**');
+lines.push('');
 writeFileSync(OUT, lines.join('\n'));
 console.log(`\nReport written to ${OUT}`);

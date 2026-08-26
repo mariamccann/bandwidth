@@ -57,12 +57,15 @@ describe('influence_gain_with_stress_cost', () => {
 });
 
 describe('give_random_card', () => {
-  it('adds an unseen card to the target hand, which may exceed 6', () => {
+  it('passes a random card from the active hand to the target', () => {
     const s = newGame();
+    const giver = active(s);
     const target = s.players.find((p) => p.id !== active(s).id)!;
+    const transferableIds = new Set(giver.hand.map((c) => c.id));
     expect(target.hand.length).toBe(6);
     play(s, card({ effectType: 'give_random_card', requiresTarget: true }), target.id);
     expect(target.hand.length).toBe(7);
+    expect(target.hand.some((c) => transferableIds.has(c.id))).toBe(true);
   });
 
   it('over-6 target does not redraw at their own turn until below 6', () => {

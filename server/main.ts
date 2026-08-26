@@ -5,6 +5,7 @@ import { createServer } from 'node:http';
 import { WebSocketServer, type WebSocket } from 'ws';
 import { Room, RoomError, RoomRegistry } from './room.js';
 import type { ClientMessage, ServerMessage } from './protocol.js';
+import { isClientMessage } from './validation.js';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const registry = new RoomRegistry();
@@ -13,6 +14,9 @@ interface Conn {
   ws: WebSocket;
   room: Room | null;
   token: string | null; // identifies the seat
+  isAlive: boolean;
+  windowStartedAt: number;
+  messagesInWindow: number;
 }
 
 const conns = new Set<Conn>();
@@ -126,6 +130,15 @@ function handle(conn: Conn, msg: ClientMessage): void {
       if (!room || !seat) throw new RoomError('Could not rejoin — room or seat gone');
       conn.room = room;
       conn.token = seat.token;
+      // A refreshed tab owns the seat now. Retiring the stale connection keeps
+      // private events and decisions from being delivered twice.
+      for (const other of conns) {
+        if (other !== conn && other.room === room && other.token === seat.token) {
+          other.room = null;
+          other.token = null;
+          other.ws.close(4001, 'Seat reconnected elsewhere');
+        }
+      }
       seat.connected = true;
       room.touch();
       send(conn.ws, { type: 'joined', code: room.code, token: seat.token, seatId: seat.seatId });
@@ -198,21 +211,44 @@ const http = createServer((req, res) => {
   res.end('bandwidth game server: ok\n');
 });
 
-const wss = new WebSocketServer({ server: http });
+const wss = new WebSocketServer({ server: http, maxPayload: 16 * 1024 });
 
 wss.on('connection', (ws) => {
-  const conn: Conn = { ws, room: null, token: null };
+  const conn: Conn = {
+    ws,
+    room: null,
+    token: null,
+    isAlive: true,
+    windowStartedAt: Date.now(),
+    messagesInWindow: 0,
+  };
   conns.add(conn);
+  ws.on('pong', () => { conn.isAlive = true; });
   ws.on('message', (data) => {
-    let msg: ClientMessage;
+    const now = Date.now();
+    if (now - conn.windowStartedAt > 5_000) {
+      conn.windowStartedAt = now;
+      conn.messagesInWindow = 0;
+    }
+    conn.messagesInWindow += 1;
+    if (conn.messagesInWindow > 30) {
+      send(ws, { type: 'error', message: 'Too many messages — slow down' });
+      ws.close(1008, 'Rate limit');
+      return;
+    }
+    let parsed: unknown;
     try {
-      msg = JSON.parse(String(data)) as ClientMessage;
+      parsed = JSON.parse(String(data));
     } catch {
       send(ws, { type: 'error', message: 'Malformed message' });
       return;
     }
+    if (!isClientMessage(parsed)) {
+      send(ws, { type: 'error', message: 'Invalid message' });
+      return;
+    }
     try {
-      handle(conn, msg);
+      handle(conn, parsed);
     } catch (e) {
       send(ws, { type: 'error', message: e instanceof RoomError ? e.message : 'Server error' });
       if (!(e instanceof RoomError)) console.error(e);
@@ -228,6 +264,18 @@ wss.on('connection', (ws) => {
     }
   });
 });
+
+const heartbeat = setInterval(() => {
+  for (const conn of conns) {
+    if (!conn.isAlive) {
+      conn.ws.terminate();
+      continue;
+    }
+    conn.isAlive = false;
+    conn.ws.ping();
+  }
+}, 30_000);
+heartbeat.unref();
 
 setInterval(() => registry.sweep(), 30 * 60 * 1000).unref();
 

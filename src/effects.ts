@@ -13,7 +13,7 @@ import {
   selectHighestStressIndex,
   stressLoad,
 } from './cards.js';
-import { drawCard } from './zones.js';
+import { randInt } from './rng.js';
 import type { Card, GameState, PlayerState } from './types.js';
 
 /** Add to collectiveStress; clamp at 0 only. Upper bound is handled by the elimination check (§4 step 6). */
@@ -47,14 +47,14 @@ export function influence_gain_with_stress_cost(state: GameState, active: Player
 }
 
 export function give_random_card(state: GameState, active: PlayerState, card: Card, target: PlayerState): void {
-  const drawn = drawCard(state);
-  if (!drawn) {
+  if (active.hand.length === 0) {
     state.gameLog.push(`${active.name} played ${card.name} on ${target.name}, but there were no cards to give.`);
     return;
   }
-  // Target's hand may exceed 6 (spec §5); they simply don't redraw until below 6.
-  target.hand.push(drawn);
-  state.gameLog.push(`${active.name} played ${card.name}: ${target.name} received a face-down card.`);
+  const given = active.hand.splice(randInt(state, active.hand.length), 1)[0]!;
+  // Target's hand may exceed 6; they simply don't redraw until below 6.
+  target.hand.push(given);
+  state.gameLog.push(`${active.name} played ${card.name}: passed a face-down card to ${target.name}.`);
 }
 
 export function skip_next_turn(state: GameState, active: PlayerState, card: Card, target: PlayerState): void {

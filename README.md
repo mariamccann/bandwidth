@@ -12,10 +12,11 @@ for it too.
 
 ## Status
 
-- ✅ **Phase 1 — Engine + simulation.** Pure TypeScript engine, 50 unit tests,
+- ✅ **Phase 1 — Engine + simulation.** Pure TypeScript engine, 68 unit tests,
   headless simulation harness. **Acceptance gate passed** — see
   [docs/simulation-report.md](docs/simulation-report.md).
-- ⬜ **Phase 2 — Hotseat UI.** React + Vite, mobile-first pass-and-play.
+- ✅ **Phase 2 — responsive game UI.** React + Vite homepage, illustrated card
+  system, accessible interactions, solo setup and pass-and-play privacy screens.
 - ✅ **Phase 3a — online multiplayer.** Server-authoritative WebSocket rooms;
   everyone plays from their own device via a 4-letter room code.
 - ✅ **Phase 3b — solo / vs computer.** Play short-handed in either mode:
@@ -32,8 +33,10 @@ for it too.
 | `sim/` | Simulation agents + acceptance harness (`npm run sim`) |
 | `server/` | WebSocket game server: rooms, join codes, per-seat redacted state (`npm start`) |
 | `test/` | Vitest unit tests (`npm test`) |
+| `public/assets/` | Homepage and 33 unique card illustrations |
 | `docs/DECISIONS.md` | Every spec ambiguity found during the build and how it was resolved |
 | `docs/simulation-report.md` | Phase 1 acceptance report (24,000 simulated games) |
+| `docs/ART-DIRECTION.md` | Brand palette, illustration rules and card-by-card visual metaphors |
 
 ## Commands
 
@@ -47,15 +50,15 @@ npm start         # multiplayer game server (WebSocket, port 8787 / $PORT)
 
 ## Online play
 
-The UI offers two modes: **pass-and-play** (one shared phone, no backend) and
-**online** (everyone on their own device). Online mode talks to the WebSocket
+The UI offers three modes: **solo / vs computer**, **pass-and-play** (one shared
+device, no backend), and **online** (everyone on their own device). Online mode talks to the WebSocket
 server in `server/`: the host creates a room and shares its 4-letter code;
 the server runs the real engine and sends each player a redacted view (your
 own hand in full, everyone else's as counts — deck order never leaves the
 server). Refreshing rejoins your seat automatically.
 
-Deploy: the static site to Netlify (as before), the server to Render via
-`render.yaml` (Blueprint deploy). The client's production server URL is set
+Deploy: the static site to Netlify and the server to Render via `render.yaml`
+(Blueprint deploy). No deployment is performed automatically. The client's production server URL is set
 in `ui/online/config.ts` (override with `VITE_WS_URL` at build time).
 
 ## Engine design

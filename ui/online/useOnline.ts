@@ -39,17 +39,34 @@ export function useOnline() {
   const wsRef = useRef<WebSocket | null>(null);
   const sessionRef = useRef<StoredSession | null>(null);
   const intentRef = useRef<ClientMessage | null>(null);
+  const reconnectAttemptRef = useRef(0);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const connect = useCallback((firstMessage: ClientMessage) => {
     intentRef.current = firstMessage;
     setState((s) => ({ ...s, status: 'connecting', error: null }));
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+    const previous = wsRef.current;
+    if (previous && previous.readyState < WebSocket.CLOSING) previous.close();
     const ws = new WebSocket(WS_URL);
     wsRef.current = ws;
     ws.onopen = () => {
+      reconnectAttemptRef.current = 0;
       if (intentRef.current) ws.send(JSON.stringify(intentRef.current));
     };
     ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data as string) as ServerMessage;
+      let msg: ServerMessage;
+      try {
+        const value = JSON.parse(ev.data as string) as { type?: unknown };
+        if (!value || typeof value !== 'object' || typeof value.type !== 'string') throw new Error();
+        msg = value as ServerMessage;
+      } catch {
+        setState((s) => ({ ...s, error: 'The server sent an unreadable response' }));
+        return;
+      }
       switch (msg.type) {
         case 'joined':
           sessionRef.current = { code: msg.code, token: msg.token };
@@ -87,10 +104,15 @@ export function useOnline() {
       if (wsRef.current !== ws) return; // superseded
       const session = sessionRef.current;
       if (session) {
-        // transparent rejoin after a dropped connection
-        setTimeout(() => {
+        // Transparent rejoin after a dropped connection, backing off so a
+        // server restart does not make every open tab reconnect in lockstep.
+        const attempt = reconnectAttemptRef.current++;
+        const delay = Math.min(15_000, 1_000 * 2 ** attempt) + Math.random() * 400;
+        setState((s) => ({ ...s, status: 'connecting', error: 'Reconnecting…' }));
+        reconnectTimerRef.current = setTimeout(() => {
+          reconnectTimerRef.current = null;
           if (wsRef.current === ws) connect({ type: 'rejoin', ...session });
-        }, 1500);
+        }, delay);
       } else {
         setState((s) => (s.status === 'idle' ? s : { ...s, status: 'idle', error: 'Connection lost' }));
       }
@@ -102,7 +124,9 @@ export function useOnline() {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (raw) {
       try {
-        const session = JSON.parse(raw) as StoredSession;
+        const parsed = JSON.parse(raw) as Partial<StoredSession>;
+        if (typeof parsed.code !== 'string' || typeof parsed.token !== 'string') throw new Error();
+        const session: StoredSession = { code: parsed.code, token: parsed.token };
         sessionRef.current = session;
         connect({ type: 'rejoin', ...session });
       } catch {
@@ -110,6 +134,7 @@ export function useOnline() {
       }
     }
     return () => {
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
       const ws = wsRef.current;
       wsRef.current = null;
       ws?.close();
@@ -117,7 +142,7 @@ export function useOnline() {
   }, [connect]);
 
   const sendMsg = useCallback((msg: ClientMessage) => {
-    wsRef.current?.send(JSON.stringify(msg));
+    if (wsRef.current?.readyState === WebSocket.OPEN) wsRef.current.send(JSON.stringify(msg));
   }, []);
 
   return {
@@ -133,6 +158,11 @@ export function useOnline() {
     clearReveal: () => setState((s) => ({ ...s, reveal: null })),
     clearError: () => setState((s) => ({ ...s, error: null })),
     leave: () => {
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      reconnectAttemptRef.current = 0;
       sessionRef.current = null;
       sessionStorage.removeItem(SESSION_KEY);
       const ws = wsRef.current;

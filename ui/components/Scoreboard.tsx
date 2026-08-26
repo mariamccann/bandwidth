@@ -21,17 +21,17 @@ export function Scoreboard({
           >
             <span className="score-name">
               {p.name}
-              {botIds?.has(p.id) && ' 🤖'}
-              {p.isProtected && ' 🛡'}
-              {p.skipNextTurn && ' ⏭'}
-              {p.forcedPlayHighestStress && ' 📋'}
+              {botIds?.has(p.id) && <span className="status-icon" role="img" aria-label="Computer player"> 🤖</span>}
+              {p.isProtected && <span className="status-icon" role="img" aria-label="Protected"> 🛡</span>}
+              {p.skipNextTurn && <span className="status-icon" role="img" aria-label="Will skip next turn"> ⏭</span>}
+              {p.forcedPlayHighestStress && <span className="status-icon" role="img" aria-label="Forced play pending"> 📋</span>}
             </span>
             <span className="score-inf">{p.influence}⭐</span>
             <span className="score-hand">{p.isAlive ? `${p.hand.length} 🂠` : 'OUT'}</span>
           </div>
         );
       })}
-      <div className="score-goal">First to {state.winThreshold}⭐ wins</div>
+      <div className="score-goal">First to {state.winThreshold} Influence wins</div>
     </div>
   );
 }
