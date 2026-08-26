@@ -1,5 +1,5 @@
-// Complete card list — Spec §6 plus one post-spec addition (Circling Back on My
-// Last Email, by the designer's request). Deck build asserts totals: 113 overall.
+// Complete card list — Spec §6 plus playtest rebalancing. Deck build asserts
+// totals: 113 overall.
 import type { Card, CardCondition, DeckType, EffectParams, EffectType } from './types.js';
 
 interface CardSpec {
@@ -14,29 +14,32 @@ interface CardSpec {
 }
 
 export const CARD_SPECS: CardSpec[] = [
-  // ---- Stress Deck (34) — no target required ----
-  { name: 'Reply-All Storm', copies: 6, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 8 }, requiresTarget: false, flavour: 'Just circling back on this — see below.' },
-  { name: 'Mandatory Wellness Webinar', copies: 6, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 10 }, requiresTarget: false, flavour: 'Attendance is optional. Attendance is tracked.' },
-  { name: 'Calendar Tetris', copies: 5, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 2, stressAmount: 12 }, requiresTarget: false, flavour: 'You have 4 minutes between meetings. Use them wisely.' },
-  { name: 'Quarterly All-Hands', copies: 4, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 2, stressAmount: 15 }, requiresTarget: false, flavour: 'Big news, everyone. Very big. Very exciting.' },
-  { name: 'System Outage — Unplanned', copies: 3, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 3, stressAmount: 18 }, requiresTarget: false, flavour: "It's not down. It's 'experiencing intermittent availability.'" },
+  // ---- Stress Deck (38) — no target required ----
+  { name: 'Reply-All Storm', copies: 5, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 1 }, requiresTarget: false, flavour: 'Just circling back on this — see below.' },
+  { name: 'Mandatory Wellness Webinar', copies: 5, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 2 }, requiresTarget: false, flavour: 'Attendance is optional. Attendance is tracked.' },
+  { name: 'Calendar Tetris', copies: 4, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 2, stressAmount: 3 }, requiresTarget: false, flavour: 'You have 4 minutes between meetings. Use them wisely.' },
+  { name: 'Quarterly All-Hands', copies: 3, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 2, stressAmount: 10 }, requiresTarget: false, flavour: 'Big news, everyone. Very big. Very exciting.' },
+  { name: 'System Outage — Unplanned', copies: 2, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 3, stressAmount: 15 }, requiresTarget: false, flavour: "It's not down. It's 'experiencing intermittent availability.'" },
   { name: 'Total Reorganisation', copies: 1, deckType: 'Stress', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 4, stressAmount: 25 }, requiresTarget: false, flavour: 'New reporting lines effective immediately. Org chart to follow. Eventually.' },
-  { name: 'Team Lunch (On the Company)', copies: 4, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -10 }, requiresTarget: false, flavour: 'Free sandwiches fix everything. For about twenty minutes.' },
-  { name: 'Early Finish Friday', copies: 3, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -12 }, requiresTarget: false, flavour: 'Someone said we could leave at 4. No one has left at 4.' },
-  { name: 'PTO Approved', copies: 2, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -15 }, requiresTarget: false, flavour: 'Your out-of-office reply is doing more work than you did all year.' },
+  { name: 'Activate Coasting Mode', copies: 4, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -2 }, requiresTarget: false, flavour: 'Delivering precisely what was requested. No more, no less.' },
+  { name: 'Meeting Cancelled', copies: 4, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -3 }, requiresTarget: false, flavour: 'The organiser found the answer in the email. Unprecedented.' },
+  { name: 'Something Useful Got Delivered', copies: 3, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -3 }, requiresTarget: false, flavour: 'It passed QA and everything. Nobody knows how.' },
+  { name: 'Manager on Hol', copies: 3, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -4 }, requiresTarget: false, flavour: 'Decisions have paused. Productivity has not.' },
+  { name: 'Deadline Extended', copies: 3, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -4 }, requiresTarget: false, flavour: 'The date moved. The work did not.' },
+  { name: 'Actually Hired Enough People', copies: 1, deckType: 'Stress', effectType: 'stress_delta', effectParams: { amount: -7 }, requiresTarget: false, flavour: 'Headcount matched the workload. Finance is investigating.' },
 
-  // ---- Politics Deck (38) ----
+  // ---- Politics Deck (34) ----
   { name: 'Regift the Hot Potato', copies: 3, deckType: 'Politics', effectType: 'give_random_card', effectParams: {}, requiresTarget: true, flavour: 'A gift! From me, to you, entirely unprompted.' },
-  { name: 'Take This Offline', copies: 4, deckType: 'Politics', effectType: 'skip_next_turn', effectParams: {}, requiresTarget: true, flavour: "Let's not solve this in the group chat." },
+  { name: 'Take This Offline', copies: 3, deckType: 'Politics', effectType: 'skip_next_turn', effectParams: {}, requiresTarget: true, flavour: "Let's not solve this in the group chat." },
   { name: 'Water Cooler Intelligence', copies: 3, deckType: 'Politics', effectType: 'steal_influence', effectParams: {}, requiresTarget: true, flavour: 'I heard from someone who heard from someone.' },
   { name: 'Calendar Blocking', copies: 3, deckType: 'Politics', effectType: 'protect_self', effectParams: {}, requiresTarget: false, flavour: 'Declined. Recurring event.' },
-  { name: 'Forced Overtime', copies: 4, deckType: 'Politics', effectType: 'force_discard_chosen_by_attacker', effectParams: {}, requiresTarget: true, flavour: "It's not overtime if you're 'passionate about the mission.'" },
+  { name: 'Forced Overtime', copies: 3, deckType: 'Politics', effectType: 'force_discard_chosen_by_attacker', effectParams: {}, requiresTarget: true, flavour: "It's not overtime if you're 'passionate about the mission.'" },
   { name: 'Reorg Rumour', copies: 3, deckType: 'Politics', effectType: 'reveal_hand', effectParams: {}, requiresTarget: true, flavour: "Nothing's confirmed. Everything's confirmed." },
-  { name: 'Micromanagement', copies: 5, deckType: 'Politics', effectType: 'force_play_highest_stress_next_turn', effectParams: {}, requiresTarget: true, flavour: 'Can you loop me in on every decision, however small?' },
+  { name: 'Micromanagement', copies: 3, deckType: 'Politics', effectType: 'force_play_highest_stress_next_turn', effectParams: {}, requiresTarget: true, flavour: 'Can you loop me in on every decision, however small?' },
   { name: 'Stealing Credit', copies: 4, deckType: 'Politics', effectType: 'steal_influence', effectParams: {}, requiresTarget: true, flavour: 'Great initiative. Glad I could lead it.' },
   { name: 'Thrown Under the Bus', copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 8 }, requiresTarget: false, flavour: 'It was a team effort. The team was you.' },
-  { name: "CC'd for Visibility", copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 5 }, requiresTarget: false, flavour: 'Just keeping everyone in the loop. Especially you.' },
-  { name: 'Circling Back on My Last Email', copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 7 }, requiresTarget: false, flavour: 'Per my previous email. And the one before. And the one before that.' },
+  { name: "CC'd for Visibility", copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 3 }, requiresTarget: false, flavour: 'Just keeping everyone in the loop. Especially you.' },
+  { name: 'Circling Back on My Last Email', copies: 3, deckType: 'Politics', effectType: 'influence_gain_with_stress_cost', effectParams: { influenceAmount: 1, stressAmount: 3 }, requiresTarget: false, flavour: 'Per my previous email. And the one before. And the one before that.' },
 
   // ---- Employee Policy Deck (10) ----
   { name: 'Team Chemistry Review', copies: 3, deckType: 'Employee', effectType: 'force_discard_chosen_by_attacker', effectParams: {}, requiresTarget: true, flavour: "We're not saying it's you. We're saying it's probably you." },
@@ -63,8 +66,8 @@ export const CARD_SPECS: CardSpec[] = [
 ];
 
 export const EXPECTED_DECK_COUNTS: Record<DeckType, number> = {
-  Stress: 34,
-  Politics: 38,
+  Stress: 38,
+  Politics: 34,
   Employee: 10,
   Influence: 28,
   Support: 3,

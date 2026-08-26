@@ -1,6 +1,6 @@
 // Turn sequence (§4), setup (§3), end conditions (§7), and resolved edge cases.
 import { describe, expect, it } from 'vitest';
-import { activePlayer, applyDecision, createGame, getPlayer, getStandings, isCardPlayable } from '../src/engine.js';
+import { activePlayer, applyDecision, createGame, getPlayer, getStandings, isCardPlayable, POST_ELIMINATION_STRESS } from '../src/engine.js';
 import { card, newGame, setHand } from './helpers.js';
 
 describe('setup (§3)', () => {
@@ -28,7 +28,7 @@ describe('setup (§3)', () => {
 });
 
 describe('elimination + Halo Effect (§4 step 6)', () => {
-  it('eliminates the tipper, resets stress, docks everyone else 2 (floored at 0)', () => {
+  it('eliminates the tipper, retains pressure, docks everyone else 2 (floored at 0)', () => {
     const s = newGame(4);
     s.collectiveStress = 95;
     const p0 = active(s);
@@ -39,7 +39,7 @@ describe('elimination + Halo Effect (§4 step 6)', () => {
     setHand(s, p0.id, [card({ effectType: 'stress_delta', effectParams: { amount: 10 } })]);
     applyDecision(s, { type: 'play_card', cardId: p0.hand[0]!.id });
     expect(getPlayer(s, p0.id).isAlive).toBe(false);
-    expect(s.collectiveStress).toBe(0);
+    expect(s.collectiveStress).toBe(POST_ELIMINATION_STRESS);
     expect(others[0]!.influence).toBe(3);
     expect(others[1]!.influence).toBe(0); // floored
     expect(others[2]!.influence).toBe(0); // floored

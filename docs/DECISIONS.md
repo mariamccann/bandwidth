@@ -19,7 +19,7 @@ review that preceded the build.
    `skipNextTurn`; `forcedPlayHighestStress` survives to their next real turn.
    The punishment is deferred, not dodged.
 6. **Stress clamping** → clamped at 0 only. The value may transiently exceed
-   100; the elimination check is the sole upper-bound handler and resets to 0.
+   100; the elimination check is the sole upper-bound handler and settles it at 75.
    (§2's "0–100, clamped" annotation is superseded by §5's explicit rule.)
 7. **Effective Immediately tipping the track** → eliminates the *active
    player* (the one who played it), exactly as §4 step 6 reads. The axe swings
@@ -68,3 +68,10 @@ review that preceded the build.
     random card from the active player's hand to the target, matching both its
     name and its intended political advantage. The earlier implementation drew
     a bonus card from the deck for the opponent, which usually helped them.
+21. **Stress economy rebalanced after playtesting (2026-08-26):** relief now
+    occupies 18 ordinary deck slots, most common positive loads are 1–3, and
+    only genuinely disruptive events reach 8–25. The 113-card total is unchanged.
+    Four repetitive disruption copies were removed to preserve the career-card
+    tempo: Stress 38 / Politics 34 / Employee 10 / Influence 28 / Support 3.
+    After an elimination, Stress settles at 75 rather than resetting to 0 or
+    remaining at an immediately lethal 99.

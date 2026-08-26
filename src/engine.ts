@@ -19,6 +19,7 @@ import type {
 export const DEFAULT_WIN_THRESHOLD = 15; // configurable constant (§1)
 export const HAND_SIZE = 6;
 export const STRESS_LIMIT = 100;
+export const POST_ELIMINATION_STRESS = 75;
 export const HALO_PENALTY = 2;
 export const DEFAULT_TURN_CAP = 300; // §7.3 safety valve
 
@@ -279,13 +280,15 @@ function finishTurn(state: GameState): void {
     // Eliminated player's hand returns to circulation (DECISIONS.md #1).
     state.discardPile.push(...active.hand);
     active.hand = [];
-    state.collectiveStress = 0;
+    // The team absorbs the departure, but the underlying workload remains.
+    // 75 preserves pressure without making the next small card an automatic exit.
+    state.collectiveStress = POST_ELIMINATION_STRESS;
     // Halo Effect: every other alive player loses 2 Influence, floored at 0.
     for (const p of alivePlayers(state)) {
       p.influence = Math.max(0, p.influence - HALO_PENALTY);
     }
     state.gameLog.push(
-      `${active.name} tipped the Stress Track past ${STRESS_LIMIT} and is out. Everyone else loses ${HALO_PENALTY} Influence.`,
+      `${active.name} tipped the Stress Track past ${STRESS_LIMIT} and is out. Stress settles at ${POST_ELIMINATION_STRESS}; everyone else loses ${HALO_PENALTY} Influence.`,
     );
     if (checkSoleSurvivor(state)) {
       if (state.inPlay) { state.discardPile.push(state.inPlay); state.inPlay = null; }

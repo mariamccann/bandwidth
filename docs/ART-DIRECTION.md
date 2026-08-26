@@ -30,9 +30,12 @@ photorealism, baked-in words, and decorative clutter.
 | Quarterly All-Hands | A forest of identical raised hands beneath one tiny microphone |
 | System Outage — Unplanned | A server plug split by one coral lightning bolt |
 | Total Reorganisation | A neat org chart being folded into an impossible knot |
-| Team Lunch (On the Company) | One sandwich beneath a temporary mint halo |
-| Early Finish Friday | An office chair rocketing toward an open exit |
-| PTO Approved | One beach umbrella escaping through a stamped paper aperture |
+| Activate Coasting Mode | One office chair reclining beneath a tiny cruise-control dial |
+| Meeting Cancelled | An empty calendar tile popping like a mint soap bubble |
+| Something Useful Got Delivered | One completed parcel glowing on an otherwise empty conveyor belt |
+| Manager on Hol | An unattended swivel chair beneath a tiny paper sun |
+| Deadline Extended | A finish line rolling itself several steps farther away |
+| Actually Hired Enough People | A neat row of occupied desks beneath one improbable mint halo |
 | Regift the Hot Potato | A smoking red folder passed between reluctant hands |
 | Take This Offline | A speech bubble disconnected from its cable |
 | Water Cooler Intelligence | A water cooler casting an oversized listening-ear shadow |

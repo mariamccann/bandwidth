@@ -28,12 +28,27 @@ describe('deck build (§6)', () => {
 
   it('matches spec copy counts for spot-checked cards', () => {
     const byName = (n: string) => buildDeck().filter((c) => c.name === n).length;
-    expect(byName('Reply-All Storm')).toBe(6);
-    expect(byName('Micromanagement')).toBe(5);
+    expect(byName('Reply-All Storm')).toBe(5);
+    expect(byName('Micromanagement')).toBe(3);
     expect(byName('Total Reorganisation')).toBe(1);
     expect(byName('Effective Immediately')).toBe(1);
     expect(byName("Actually Asked If You're OK")).toBe(3);
     expect(byName('Performance Improvement Plan')).toBe(2);
+    expect(byName('Activate Coasting Mode')).toBe(4);
+    expect(byName('Meeting Cancelled')).toBe(4);
+    expect(byName('Something Useful Got Delivered')).toBe(3);
+    expect(byName('Manager on Hol')).toBe(3);
+    expect(byName('Deadline Extended')).toBe(3);
+    expect(byName('Actually Hired Enough People')).toBe(1);
+  });
+
+  it('makes relief common and keeps most positive Stress cards in the 1–3 range', () => {
+    const deck = buildDeck();
+    const relief = deck.filter((c) => c.effectType === 'stress_delta' && (c.effectParams.amount ?? 0) < 0);
+    const positive = deck.filter((c) => stressLoad(c) > 0);
+    const lowStress = positive.filter((c) => stressLoad(c) <= 3);
+    expect(relief).toHaveLength(18);
+    expect(lowStress.length / positive.length).toBeGreaterThan(0.6);
   });
 
   it('marks only the two free +1 Influence cards with not_sole_leader', () => {
