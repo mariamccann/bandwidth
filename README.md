@@ -1,6 +1,6 @@
 # Bandwidth
 
-**You have none. They want more.**
+**You have no bandwidth. They want more.**
 
 *(spec: "Untitled Corporate Survival Card Game", v1.1)*
 

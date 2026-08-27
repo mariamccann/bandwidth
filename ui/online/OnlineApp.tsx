@@ -158,7 +158,11 @@ export function OnlineApp({ onBack }: { onBack: () => void }) {
             <span className="score-hand">{p.isAlive ? `${p.handCount} 🂠` : 'OUT'}</span>
           </div>
         ))}
-        <div className="score-goal">First to {view.winThreshold} Influence wins · room {state.code}</div>
+        <div className="score-goal">
+          <span className="score-goal-label">Your OKR</span>
+          <span>Reach {view.winThreshold} Influence to win. Any card marked <strong>+⭐</strong> gets you ahead.</span>
+          <span className="score-room">Room {state.code}</span>
+        </div>
       </div>
       <div className="turn-banner">
         {yourTurn
@@ -211,7 +215,7 @@ function OnlineHome({
   return (
     <div className="lobby">
       <h1 className="lobby-title">Bandwidth</h1>
-      <p className="lobby-tag">You have none. They want more.</p>
+      <p className="lobby-tag">You have no bandwidth. They want more.</p>
       <label className="field">
         <span>Your name</span>
         <input value={name} maxLength={16} placeholder="e.g. Maria" onChange={(e) => setName(e.target.value)} />

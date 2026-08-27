@@ -169,7 +169,7 @@ export function EliminationModal({ name, onClose }: { name: string; onClose: () 
         <div className="elim-burst" aria-hidden="true">📤</div>
         <p className="elim-quote">"Meet you all down the pub for a goodbye drink."</p>
         <p>
-          {name} tipped the Collective Stress Track past 100. The track resets to 0 —
+          {name} tipped the Collective Stress Track past 100. The track settles at 75 —
           and the <strong>Halo Effect</strong> costs every survivor 2 Influence. Nobody
           profits cleanly from a colleague's collapse.
         </p>

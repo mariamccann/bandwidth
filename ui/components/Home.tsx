@@ -17,7 +17,7 @@ const MODES = [
   {
     eyebrow: '1–6 humans + AI colleagues',
     title: 'Solo / vs AI',
-    copy: 'Fill the empty desks with your new AI colleagues. They’re always available and somehow already in the succession plan.',
+    copy: 'Fill the empty desks with your new AI colleagues. They’re always available.',
     action: 'Set up a game',
     key: 'solo',
   },
@@ -41,7 +41,7 @@ export function Home({ onOnline, onSolo, onHotseat }: HomeProps) {
             <span>Bandwidth</span>
           </div>
           <p className="home-kicker">A corporate survival card game</p>
-          <h1 id="home-title">You have none.<br />They want more.</h1>
+          <h1 id="home-title">You have no bandwidth.<br />They want more.</h1>
           <p className="home-intro">
             Race for Influence while every career-enhancing initiative raises the team’s Collective Stress.
             Take it to 100 and the company will no longer require your services.
@@ -74,7 +74,7 @@ export function Home({ onOnline, onSolo, onHotseat }: HomeProps) {
           <li>
             <span className="how-index">3</span>
             <h3>Remain employable</h3>
-            <p>Reach 15 Influence to win. Take Collective Stress to 100 and you’re out; the track resets and everyone left loses 2 Influence.</p>
+            <p>Reach 15 Influence to win. Take Collective Stress to 100 and you’re out; it settles at 75 and everyone left loses 2 Influence.</p>
           </li>
         </ol>
       </section>

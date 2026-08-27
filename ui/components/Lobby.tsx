@@ -8,7 +8,7 @@ export function Lobby({ onStart }: { onStart: (names: string[], winThreshold: nu
   return (
     <div className="lobby">
       <h1 className="lobby-title">Bandwidth</h1>
-      <p className="lobby-tag">You have none. They want more.</p>
+      <p className="lobby-tag">You have no bandwidth. They want more.</p>
       <label className="field">
         <span>Players (3–8)</span>
         <div className="count-row">

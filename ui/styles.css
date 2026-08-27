@@ -194,7 +194,20 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .score-dead { opacity: .48; text-decoration: line-through; }
 .score-inf { color: var(--blue); font-weight: 850; }
 .score-hand { color: var(--paper-muted); }
-.score-goal { width: 100%; color: var(--paper-muted); font-size: .75rem; }
+.score-goal {
+  display: flex;
+  align-items: baseline;
+  gap: .55rem;
+  width: 100%;
+  padding: .65rem .8rem;
+  border-left: 3px solid var(--gold);
+  background: var(--ledger-soft);
+  color: var(--paper);
+  font-size: .95rem;
+  font-weight: 700;
+}
+.score-goal-label { flex: none; color: var(--gold); font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.score-room { margin-left: auto; color: var(--paper-muted); font-size: .75rem; font-weight: 650; text-transform: uppercase; }
 .turn-banner { grid-area: banner; padding: .7rem 1rem; border-left: 4px solid var(--blue); background: var(--ledger-soft); font-weight: 800; }
 .turn-bot { border-color: var(--gold); color: var(--gold); }
 .turn-bot::after { content: "  ◌"; }

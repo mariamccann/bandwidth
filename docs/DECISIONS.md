@@ -5,7 +5,7 @@ was resolved during the Phase 1 build as recorded here. Numbers match the
 review that preceded the build.
 
 1. **Eliminated player's hand** → discarded to the discard pile at elimination.
-   Keeps all 110 cards circulating so deck-cycle economy (and therefore sim
+   Keeps all 113 cards circulating so deck-cycle economy (and therefore sim
    results) doesn't degrade as players are eliminated.
 2. **Self-targeting** → disallowed for *all* targeted effects. The spec only
    excluded self for `aid_target`; allowing self-targeting elsewhere made
@@ -13,8 +13,8 @@ review that preceded the build.
 3. **Skipped turns** → proceed directly to step 9: the turn advances and
    `turnCount` increments, so skips count toward the 300-turn cap.
 4. **Forced-play tiebreak** → made total: highest stress load → lower Influence
-   yield → lowest hand index. (Needed because Reply-All Storm and Thrown Under
-   the Bus have identical stats.) Same rule reused by Effective Immediately.
+   yield → lowest hand index. This keeps duplicated loads deterministic. The
+   same rule is reused by Effective Immediately.
 5. **Skip + forced-play on the same player** → the skip consumes only
    `skipNextTurn`; `forcedPlayHighestStress` survives to their next real turn.
    The punishment is deferred, not dodged.
@@ -56,7 +56,7 @@ review that preceded the build.
     `influence_gain_with_stress_cost {influence 1, stress 7}`. Deck totals
     become Politics 38 / **113 overall**; all build assertions updated. Balance
     re-validated by a full simulation re-run (see simulation-report.md).
-18. **Game name:** *Bandwidth* — strapline "You have none. They want more."
+18. **Game name:** *Bandwidth* — strapline "You have no bandwidth. They want more."
     (Was working-titled Collective Stress; the shared meter keeps that name
     in-game.)
 19. **Card swaps removed after playtesting (2026-08-25):** the swap interaction

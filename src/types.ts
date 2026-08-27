@@ -93,7 +93,7 @@ export type Decision =
 export interface GameState {
   players: PlayerState[];
   /** Clamped at 0. May transiently exceed 100 during resolution; the
-   *  elimination check (§4 step 6) is the upper-bound handler and resets to 0. */
+   *  elimination check (§4 step 6) settles it at the post-elimination level. */
   collectiveStress: number;
   deck: Card[];
   discardPile: Card[];

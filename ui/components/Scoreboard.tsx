@@ -31,7 +31,10 @@ export function Scoreboard({
           </div>
         );
       })}
-      <div className="score-goal">First to {state.winThreshold} Influence wins</div>
+      <div className="score-goal">
+        <span className="score-goal-label">Your OKR</span>
+        <span>Reach {state.winThreshold} Influence to win. Any card marked <strong>+⭐</strong> gets you ahead.</span>
+      </div>
     </div>
   );
 }
